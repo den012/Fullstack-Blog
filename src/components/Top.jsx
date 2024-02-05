@@ -6,6 +6,7 @@ import axios from 'axios';
 import '../App.css';
 import profilePic from './../assets/cruela.jpg';
 import Popup from './Popup';
+import NewPostForm from './NewPostForm';
 
 const useOutsideClick = (ref, callback) => {
     const handleClick = e => {
@@ -58,9 +59,23 @@ const Top = () => {
 
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
 
+    //create post
+    const [posts, setPosts] = useState([]);
+
+    const handlePostCreation = async (newPost) => {
+        try{
+            const response = await axios.post('http://127.0.0.1:5001/create-post', newPost);
+            console.log(response.data);
+
+            setPosts([...posts, response.data.post]);
+        } catch(error){
+            console.log("ERROR creating post!", error);
+        }
+    };
+
     return (
         <div className="grid grid-cols-3 items-center p-2">
-            <h1 className="font-title text-5xl text-center col-start-2 col-end-3">Denis BLOG</h1>
+            <h1 className="font-title text-5xl text-center col-start-2 col-end-3">Denis666</h1>
 
             <div className="flex justify-end">
                 <div className="mr-2" onClick={toggleDropdown} ref={dropdownRef}>
@@ -77,18 +92,7 @@ const Top = () => {
                                 className={`block w-32 px-4 py-2 whitespace-nowrap text-gray-700 ${isAuthenticated ? 'bg-gray-100 hover:bg-gray-200' : 'bg-red-200 hover:bg-red-300'}`}
                                 disabled={!isAuthenticated}
                                 onClick={() => openPopup(
-                                    <div>
-                                        <h1>Your profile</h1>
-                                    </div>
-                                )}>View Profile</button>
-
-                            <button 
-                                className={`block w-32 px-4 py-2 whitespace-nowrap text-gray-700 ${isAuthenticated ? 'bg-gray-100 hover:bg-gray-200' : 'bg-red-200 hover:bg-red-300'}`}
-                                disabled={!isAuthenticated}
-                                onClick={() => openPopup(
-                                    <div>
-                                        <h1>New Post</h1>
-                                    </div>
+                                    <NewPostForm onCreatePost={handlePostCreation} onClose={closePopup}/>
                                 )}>Create Post</button>
                         </div>
                     )}

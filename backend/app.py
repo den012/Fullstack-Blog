@@ -26,6 +26,29 @@ def get_posts():
     posts = convert_object_id(posts)
     return jsonify({"posts": posts})
 
+@app.route('/create-post', methods=['POST'])
+def create_post():
+    data = request.get_json()
+
+    title = data.get('title')
+    body = data.get('body')
+    #image = data.get('image')
+
+    if not title or not body:
+        return jsonify({"error": "Missing required fields"}), 400
+    
+    new_post = {
+        "title": title,
+        "body": body,
+        "image": "https://picsum.photos/700/500"
+    }
+
+    result = mongo.db.posts.insert_one(new_post)
+    created_post = mongo.db.posts.find_one({"_id": result.inserted_id})
+    created_post = json_util.loads(json_util.dumps(created_post, default=str))
+    created_post['_id'] = str(created_post['_id'])
+    return jsonify({"message": "Post created successuflly", "post": created_post}), 201
+
 #auth route
 @app.route('/login', methods=['POST'])
 def login():
